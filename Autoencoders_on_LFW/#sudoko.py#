@@ -1,0 +1,96 @@
+import copy
+import numpy as np
+
+class Solution:
+    def solveSudoku(self, board):
+        """
+        :type board: List[List[str]]
+        :rtype: void Do not return anything, modify board in-place instead.
+        """
+        numbers=[str(num) for num in range(1,10)]
+        sq_elems,row_elems,col_elems=[copy.deepcopy(numbers) for _ in range(9)],[copy.deepcopy(numbers) for _ in range(9)],[copy.deepcopy(numbers) for _ in range(9)]
+        
+        prefilled={}
+        for row in range(9):
+            for col in range(9):
+                elem=board[row][col]
+                
+                if elem!='.':
+                    prefilled[(row,col)]=''
+                    sq=row//3+col//3*3
+                    sq_elems[sq].remove(elem)
+                    row_elems[row].remove(elem)
+                    col_elems[col].remove(elem)
+        
+        print(np.array(board))
+        print('done preprocessing')
+        complete=False
+        allowed_values=[num for num in numbers if ((num in row_elems[0]) and (num in col_elems[0]) and (num in sq_elems[0]))]
+        def dfs(board,row,col,sq_elems,row_elems,col_elems,allowed_values):
+            global complete
+            complete=False
+            if (row,col) in prefilled:
+                
+                if (row,col)==(8,8):
+                    print('A',row,col,complete)
+                    return True
+                
+                #print('prefilled',row,col,complete)
+                allowed_values_copy=copy.copy(allowed_values)
+                new_sq=row//3+(col+1)//3*3 if col<8 else (row+1)//3
+                allowed_values_copy=[num for num in numbers if ((num in row_elems[row]) and (num in col_elems[col+1]) and (num in sq_elems[new_sq]))] if col<8 else [num for num in numbers if ((num in row_elems[row+1]) and (num in col_elems[0]) and (num in sq_elems[new_sq]))]
+                if allowed_values_copy==[]:
+                    #print('iyat',row,col,complete)
+                    return False
+                complete=dfs(board,row,col+1,sq_elems,row_elems,col_elems,allowed_values_copy) if col<8 else dfs(board,row+1,0,sq_elems,row_elems,col_elems,allowed_values_copy)
+                return complete
+            else:
+                sq=row//3+col//3*3
+                #print('B',row,col,complete,allowed_values)
+                for val in allowed_values:
+                    #print('C',row,col,val,complete)
+                    if not complete:
+                        board[row][col]=val
+                        
+                        if (row,col)==(8,8):
+                            #print('E',row,col,complete)
+                            return True 
+                        #print('D',row,col,val,complete)
+                        sq_elems_copy=copy.deepcopy(sq_elems)
+                        col_elems_copy=copy.deepcopy(col_elems)
+                        row_elems_copy=copy.deepcopy(row_elems)
+                        allowed_values_copy=copy.copy(allowed_values)
+                        
+                        try:
+                            row_elems_copy[row].remove(val)
+                        except ValueError:
+                            print(allowed_values)
+                            print(row,col,val)
+                            print(row_elems_copy[row])
+                            print(col_elems_copy[col])
+                            print(sq_elems_copy[sq])
+                            print(np.array(board))
+                            return
+                        sq_elems_copy[sq].remove(val)   
+                        col_elems_copy[col].remove(val)
+                        new_sq=row//3+(col+1)//3*3 if col<8 else (row+1)//3
+                        allowed_values_copy=[num for num in numbers if ((num in row_elems_copy[row]) and (num in col_elems_copy[col+1]) and (num in sq_elems_copy[new_sq]))] if col<8 else [num for num in numbers if ((num in row_elems_copy[row+1]) and (num in col_elems_copy[0]) and (num in sq_elems_copy[new_sq]))]
+                        if allowed_values_copy==[]:
+                            #print('F',row,col,val,complete)
+                            return False
+                        complete=dfs(board,row,col+1,sq_elems_copy,row_elems_copy,col_elems_copy,allowed_values_copy) if col<8 else dfs(board,row+1,0,sq_elems_copy,row_elems_copy,col_elems_copy,allowed_values_copy)
+                        
+                        #print('traceback',row,col,complete,allowed_values,val)
+                print('G',row,col,complete)
+                return complete
+        
+               
+        dfs(board,0,0,sq_elems,row_elems,col_elems,allowed_values)
+        print(np.array(board))
+        return
+
+ab=[[".",".","9","7","4","8",".",".","."],["7",".",".",".",".",".",".",".","."],[".","2",".","1",".","9",".",".","."],[".",".","7",".",".",".","2","4","."],[".","6","4",".","1",".","5","9","."],[".","9","8",".",".",".","3",".","."],[".",".",".","8",".","3",".","2","."],[".",".",".",".",".",".",".",".","6"],[".",".",".","2","7","5","9",".","."]]
+
+S=Solution()
+
+S.solveSudoku()

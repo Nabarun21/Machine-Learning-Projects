@@ -102,3 +102,22 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+
+
+*.tgz
+*.bz
+*.zip
+*checkpoint*
+sge*
+__*
+*~
+*jpg
+*jpeg
+*png
+*JPG
+*JPEG
+*pickle
+*hdf5
+*h5
+*hdf
