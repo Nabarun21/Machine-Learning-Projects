@@ -24,7 +24,7 @@ def mask_busy_gpus(leave_unmasked=1, random=True,wait=True):
         command = "nvidia-smi --query-gpu=memory.free --format=csv"
         memory_free_info = _output_to_list(sp.check_output(command.split()))[1:]
         memory_free_values = [int(x.split()[0]) for i, x in enumerate(memory_free_info)]
-        available_gpus = [i for i, x in enumerate(memory_free_values) if x > 512]
+        available_gpus = [i for i, x in enumerate(memory_free_values) if x > 2048]
         logging.info('Found only %d usable GPUs in the system' % len(available_gpus))
         if len(available_gpus) < leave_unmasked:
             if wait:
